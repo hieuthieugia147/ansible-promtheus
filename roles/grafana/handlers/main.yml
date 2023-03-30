@@ -1,5 +1,11 @@
-- name: "Restart the Grafana service."
-  service:
+---
+- name: Restart grafana server
+  systemd:
     name: grafana-server
     state: restarted
-  listen: event_restart_grafana
+
+- name: Restart Nginx
+  service:
+    name: nginx
+    enabled: yes
+    state: started

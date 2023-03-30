@@ -1,4 +1,11 @@
 ---
+- hosts: grafana
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+    - grafana
+
 - hosts: alertmanager
   become: yes
   become_user: root
@@ -20,9 +27,10 @@
   roles:
     - prometheus
 
-- hosts: grafana
+- hosts: telegram_bot
   become: yes
   become_user: root
   become_method: sudo
   roles:
-    - grafana
+    - telegram
+

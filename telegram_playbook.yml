@@ -1,0 +1,7 @@
+- hosts: telegram_bot
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+    - telegram_bot
+

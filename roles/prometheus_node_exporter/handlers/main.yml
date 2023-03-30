@@ -1,0 +1,11 @@
+- name: Reload systemd
+  command: systemctl daemon-reload
+  listen: systemd_reload
+
+- name: stop service
+  command: systemctl stop node_exporter
+  listen: node_exporter_stop
+
+- name: stop service
+  command: systemctl start node_exporter
+  listen: node_exporter_start

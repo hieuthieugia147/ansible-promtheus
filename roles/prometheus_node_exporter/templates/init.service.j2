@@ -6,7 +6,7 @@ After=network-online.target
 [Service]
 User={{ userId }}
 Group={{ groupId }}
-Restart=on-failure
+Restart=always
 Type=simple
 ExecStart={{ exec_command }}
 

@@ -1,0 +1,94 @@
+---
+#- name: Install nessesary package
+ # apt:
+  #    name: apt-transport-https
+   #   state: present
+    #  update_cache: yes
+
+- name: Add GPG key for grafana
+  apt_key:
+    url: "{{ grafana_key_url }}"
+    state: present
+    validate_certs: False
+
+
+- name: Add grafana repo
+  apt_repository:
+    repo: "{{ grafana_repo_url }}"
+    state: present
+    filename: grafana
+
+- name: Install grafana
+  apt:
+    name: grafana
+    state: present
+    update_cache: yes
+
+- name: Enable and start grafana service
+  systemd:
+    name: grafana-server
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
+- name: Ensure grafana pid directory is present
+  file:
+    path: "{{ grafana_pid_file_dir }}"
+    owner: "{{ grafana_user }}"
+    group: "{{ grafana_group }}"
+    mode: 0755
+    state: directory
+
+
+- name: Ensure grafana directories ownership and permissions
+  file:
+    path="{{ item }}"
+    owner="{{ grafana_user }}"
+    group="{{ grafana_group }}"
+    mode=0755
+    state=directory
+  become: yes
+  with_items:
+    - "{{ grafana_dir_conf }}"
+    - "{{ grafana_dir_data }}"
+    - "{{ grafana_dir_home }}"
+    - "{{ grafana_dir_log }}"
+    - "{{ grafana_dir_plugins }}"
+    - "{{ grafana_pid_file_dir }}"
+
+
+- name: Ensure integrity of grafana configuration.
+  template:
+    src: 'grafana.ini.j2'
+    dest: "{{ grafana_conf_file }}"
+    owner: "{{ grafana_user }}"
+    group: "{{ grafana_group }}"
+    mode: 0644
+  notify:
+    - Restart grafana server
+
+
+- name: Ensure integrity of grafana configuration.
+  template:
+    src: 'grafana-server.j2'
+    dest: '/etc/default/grafana-server'
+    owner: "{{ grafana_user }}"
+    group: "{{ grafana_group }}"
+    mode: 0644
+  notify: Restart grafana server
+
+
+- name: Install - update Grafana plugin
+  grafana_plugin:
+    name: "{{ item }}"
+    version: latest
+    state: present
+  with_items:
+    - grafana-clock-panel
+    - grafana-piechart-panel
+    
+- name: Disable the ufw firewall (on Ubuntu, if configured).
+  service:
+    name: ufw
+    state: stopped
+    enabled: false

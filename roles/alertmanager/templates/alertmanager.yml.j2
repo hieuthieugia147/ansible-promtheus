@@ -1,5 +1,5 @@
 global:
-  slack_api_url: "https://hooks.slack.com/services/SlackWebhookAPI"
+  
 
 route:
   group_by: ['instance', 'severity']
@@ -15,4 +15,11 @@ receivers:
 - name: 'alert-team'
   slack_configs:
   - channel: "#webhook-test"
-    text: "summary: {{ .CommonAnnotations.summary }}\ndescription: {{ .CommonAnnotations.description }}"
+    text: "summary: \ndescription: "
+    webhook_configs:
+      - url:
+      {% for host in groups['alertmanager'] %}
+      {% if inventory_hostname != host %}
+            '{{ host }}/alert/{{ telegramId }}'
+      {% endif %}
+      {% endfor %}

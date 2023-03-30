@@ -36,6 +36,9 @@
   template:
     src: init.service.j2
     dest: /etc/systemd/system/node_exporter.service
+  notify: systemd_reload
+          node_exporter_stop
+          node_exporter_start
 
 - name: Start node_exporter service
   service:
