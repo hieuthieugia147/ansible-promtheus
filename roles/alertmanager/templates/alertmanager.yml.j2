@@ -1,11 +1,10 @@
 global:
   
-
 route:
   group_by: ['instance', 'severity']
   group_wait: 30s
   group_interval: 5m
-  repeat_interval: 3h
+  repeat_interval: 1m
   routes:
   - match:
       alertname: InstanceDown
@@ -13,13 +12,5 @@ route:
 
 receivers:
 - name: 'alert-team'
-  slack_configs:
-  - channel: "#webhook-test"
-    text: "summary: \ndescription: "
-    webhook_configs:
-      - url:
-      {% for host in groups['alertmanager'] %}
-      {% if inventory_hostname != host %}
-            '{{ host }}/alert/{{ telegramId }}'
-      {% endif %}
-      {% endfor %}
+  webhook_configs:
+  - url:{% for host in groups['alertmanager'] %}'http://{{ host }}/alert/{{ telegramId }}'{% endfor %}
