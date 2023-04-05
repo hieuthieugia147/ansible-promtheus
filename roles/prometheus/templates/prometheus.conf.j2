@@ -10,11 +10,9 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets:
-      {% for host in groups['all'] %}
-      {% if inventory_hostname != host %}
+      {% for host in groups['node_exporter'] %}{% if inventory_hostname != host %}
       - '{{ host }}:9100'
-      {% endif %}
-      {% endfor %}
+      {% endif %}{% endfor %}
   
   - job_name: 'blackbox'
     metrics_path: /probe
@@ -38,8 +36,7 @@ alerting:
   alertmanagers:
   - static_configs:
     - targets:
-`   {% for host in groups['alertmanager'] %}
-    {% if inventory_hostname != host %}
-      - '{{ host }}:9093'
+    {% for host in groups['alertmanager'] %}
+    {% if inventory_hostname != host %}- '{{ host }}:9093'
     {% endif %}
     {% endfor %}
