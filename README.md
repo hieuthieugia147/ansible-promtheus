@@ -1,5 +1,5 @@
 # ANSIBLE
-Code bao gồm cài đăt phần mềm prometheus , grafana , blackbox_exporter , node_exporter , alertmanager và kết nối alertmanager với telegram(chức năng cuối đang lỗi =)
+Code bao gồm cài đăt phần mềm prometheus , grafana , blackbox_exporter , node_exporter , alertmanager và kết nối alertmanager với telegram Đã fix
 ### Note
  Code chạy trên ubuntu server 22.04 lts, có thể phải chỉnh lại thông tin phiên bản các phần mềm còn lại để phù hợp với hệ điều hành thấp hơn.
 ## Sử dụng
