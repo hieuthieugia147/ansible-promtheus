@@ -1,0 +1,9 @@
+---
+prometheus_bot_project_url: "https://github.com/Amygos/prometheus_bot"
+prometheus_bot_version: "v1"
+prometheus_bot_listen_addr: "192.168.48.141:9087"
+prometheus_bot_telegram_token: "6281148927:AAF6pQv5X6mjh3UETRsifJApZu5_O_HrA14"
+prometheus_bot_template_path: ""
+prometheus_bot_time_zone: "Asia/Ho_Chi_minh"
+
+__prometheus_bot_use_template: false

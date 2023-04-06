@@ -1,0 +1,21 @@
+global:
+  slack_api_url: "https://hooks.slack.com/services/SlackWebhookAPI"
+
+route:
+  group_by: ['instance', 'severity']
+  group_wait: 30s
+  group_interval: 1m
+  repeat_interval: 1m
+  routes:
+  - match:
+      alertname: InstanceDown
+  receiver: 'alert-team'
+
+receivers:
+- name: 'alert-team'
+  slack_configs:
+  - channel: "#webhook-test"
+    text: "summary: {{ .CommonAnnotations.summary }}\ndescription: {{ .CommonAnnotations.description }}"
+  webhook_configs:
+    - send_resolved: true
+      url: 'http://192.168.48.129:9087/alert/6050422602'

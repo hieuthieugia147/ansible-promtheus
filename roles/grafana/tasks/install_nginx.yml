@@ -1,0 +1,26 @@
+---
+- name: Add Nginx Repository
+  apt_repository: repo='ppa:nginx/stable' state=present
+  register: ppainstalled
+
+
+- name: Install Nginx
+  apt: pkg=nginx state=latest update_cache=true
+  when: ppainstalled is success
+  notify:
+    - Restart Nginx
+
+- name: Disable NGINX Default Virtual Host
+  command:
+    cmd: unlink /etc/nginx/sites-enabled/default
+
+- name: configure nginx for grafana
+  template:
+    src: grafana.conf.j2
+    dest: /etc/nginx/sites-available/grafana.conf
+
+- name: Link NGINX grafana reverse Proxy
+  command:
+    cmd: ln -s /etc/nginx/sites-available/grafana.conf /etc/nginx/sites-enabled/grafana.conf
+  notify:
+    - Restart Nginx

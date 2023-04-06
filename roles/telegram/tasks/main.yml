@@ -1,0 +1,45 @@
+---
+- name: Download prometheus_bot binary
+  get_url:
+    url: "{{ prometheus_bot_project_url }}/releases/download/{{ prometheus_bot_version }}/prometheus_bot"
+    dest: "/usr/bin/"
+    mode: "u=rwx,g=xr,o=xr"
+
+- name: Create configuration directory
+  file:
+    path: /etc/prometheus_bot/
+    state: directory
+
+- name: Copy configuration file
+  template:
+    src: config.yml.j2
+    dest: /etc/prometheus_bot/config.yml
+  notify:
+    - restart promethus_bot
+
+- name: Copy template file
+  copy:
+    src: "{{ prometheus_bot_template_path }}"
+    dest: /etc/prometheus_bot/
+  register: __prometheus_bot_copy_template_file
+  ignore_errors: yes
+
+- set_fact:
+    __prometheus_bot_use_template: true
+  when: not __prometheus_bot_copy_template_file.failed
+  notify:
+    - restart promethus_bot
+
+- name: Copy systemd unit
+  template:
+    src: prometheus_bot.service.j2
+    dest: /usr/lib/systemd/system/prometheus_bot.service
+  notify:
+    - restart prometheus_bot
+
+- name: Enable and start systemd service
+  systemd:
+    name: prometheus_bot
+    state: started
+    enabled: true
+    daemon_reload: yes

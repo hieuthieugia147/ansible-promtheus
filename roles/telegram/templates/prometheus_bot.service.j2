@@ -1,0 +1,21 @@
+[Unit]
+Description=Prometheus Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+PIDFile=/var/run/promethus_bot.pid
+User=root
+Group=root
+ExecStart=/usr/bin/prometheus_bot \
+  -c /etc/prometheus_bot/config.yml \
+  {% if __prometheus_bot_use_template %}
+  -t /etc/prometheus_bot/template.tmpl \
+  {% endif %}
+  -l {{ prometheus_bot_listen_addr }}
+
+SyslogIdentifier=promethus_bot
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+---
+- name: Restart grafana server
+  systemd:
+    name: grafana-server
+    state: restarted
+
+- name: Restart Nginx
+  service:
+    name: nginx
+    enabled: yes
+    state: started

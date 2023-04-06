@@ -1,0 +1,17 @@
+[prometheus]
+192.168.48.142
+
+[node_exporter]
+192.168.48.140
+
+[alertmanager]
+192.168.48.141
+
+[grafana]
+192.168.48.142
+
+[telegram_bot]
+192.168.48.141
+
+[blackbox_exporter]
+192.168.48.140
