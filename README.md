@@ -46,9 +46,10 @@ Mỗi chương trình tương ứng 1 folder trong foler roles, Ví du prometheu
 file vars/main.yml chứa thông tin phiên bản , tên service , chúng ta có thể thay đổi để phù hớp với hệ điệu hành . Ví dụ Ubuntu 22.04 thì node_exporter phiên bản 0.17 trở lên. 
 
 Muốn kết nối bot chúng ta cần chỉnh 3 thông số
-1: thông số trong /roles/akertmanager/vas/main.yml thay đổi thông số IDtelegram phù hợp với ID phòng 
 
-2: thông số trong roles/telegram/vars/main.yml thay đổi thông số Telegram token
+1: thông số trong file /roles/akertmanager/vas/main.yml thay đổi thông số IDtelegram phù hợp với ID phòng 
+
+2: thông số trong file roles/telegram/vars/main.yml thay đổi thông số Telegram token
 
 3:  thông số trong roles/telegram/vars/main.yml thay đổi thông số ID tương ứng với ID alertmanager
 Cách lấy id và telegram token search trên mạng là ok
