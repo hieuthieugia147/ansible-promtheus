@@ -25,7 +25,7 @@ ssh-copy-id user@ipnode1
 ssh-copy-id user@ipnode2
 ssh-copy-id user@ipnode3
 ssh-copy-id user@ipnode4
-## Chạy code
+```
 
 Chạy toàn bộ các chương trình chúng ta sử dung lệnh:
 ``` 
