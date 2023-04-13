@@ -47,6 +47,8 @@ file vars/main.yml chứa thông tin phiên bản , tên service , chúng ta có
 
 Muốn kết nối bot chúng ta cần chỉnh 3 thông số
 1: thông số trong /roles/akertmanager/vas/main.yml thay đổi thông số IDtelegram phù hợp với ID phòng 
+
 2: thông số trong roles/telegram/vars/main.yml thay đổi thông số Telegram token
+
 3:  thông số trong roles/telegram/vars/main.yml thay đổi thông số ID tương ứng với ID alertmanager
 Cách lấy id và telegram token search trên mạng là ok
