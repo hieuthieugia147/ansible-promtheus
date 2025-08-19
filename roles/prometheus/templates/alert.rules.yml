@@ -1,0 +1,244 @@
+groups:
+- name: system_alerts
+  rules:
+  # Instance/Service Availability
+  - alert: InstanceDown
+    expr: up == 0
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Instance {{ $labels.instance }} is down"
+      description: "{{ $labels.instance }} has been down for more than 30 seconds."
+
+  - alert: PrometheusDown
+    expr: up{job="prometheus"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Prometheus server is down"
+      description: "Prometheus server has been down for more than 1 minute."
+
+  - alert: NodeExporterDown
+    expr: up{job="node_exporter"} == 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Node Exporter on {{ $labels.instance }} is down"
+      description: "Node Exporter on {{ $labels.instance }} has been down for more than 1 minute."
+
+  - alert: BlackboxExporterDown
+    expr: up{job="blackbox"} == 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Blackbox Exporter is down"
+      description: "Blackbox Exporter has been down for more than 1 minute."
+
+- name: system_resources
+  rules:
+  # CPU Alerts
+  - alert: HighCPUUsage
+    expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU usage on {{ $labels.instance }}"
+      description: "CPU usage is above 80% on {{ $labels.instance }} for more than 5 minutes. Current value: {{ $value }}%"
+
+  - alert: CriticalCPUUsage
+    expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical CPU usage on {{ $labels.instance }}"
+      description: "CPU usage is above 95% on {{ $labels.instance }} for more than 2 minutes. Current value: {{ $value }}%"
+
+  # Memory Alerts
+  - alert: HighMemoryUsage
+    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High memory usage on {{ $labels.instance }}"
+      description: "Memory usage is above 80% on {{ $labels.instance }} for more than 5 minutes. Current value: {{ $value }}%"
+
+  - alert: CriticalMemoryUsage
+    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 95
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical memory usage on {{ $labels.instance }}"
+      description: "Memory usage is above 95% on {{ $labels.instance }} for more than 2 minutes. Current value: {{ $value }}%"
+
+  # Disk Alerts
+  - alert: HighDiskUsage
+    expr: (node_filesystem_size_bytes{fstype!="tmpfs"} - node_filesystem_free_bytes{fstype!="tmpfs"}) / node_filesystem_size_bytes{fstype!="tmpfs"} * 100 > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High disk usage on {{ $labels.instance }}"
+      description: "Disk usage is above 80% on {{ $labels.instance }} at {{ $labels.mountpoint }}. Current value: {{ $value }}%"
+
+  - alert: CriticalDiskUsage
+    expr: (node_filesystem_size_bytes{fstype!="tmpfs"} - node_filesystem_free_bytes{fstype!="tmpfs"}) / node_filesystem_size_bytes{fstype!="tmpfs"} * 100 > 95
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical disk usage on {{ $labels.instance }}"
+      description: "Disk usage is above 95% on {{ $labels.instance }} at {{ $labels.mountpoint }}. Current value: {{ $value }}%"
+
+  - alert: DiskWillFillIn4Hours
+    expr: predict_linear(node_filesystem_free_bytes{fstype!="tmpfs"}[1h], 4*3600) < 0
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Disk will fill up in 4 hours on {{ $labels.instance }}"
+      description: "Based on current usage trends, disk at {{ $labels.mountpoint }} on {{ $labels.instance }} will fill up in approximately 4 hours."
+
+- name: network_connectivity
+  rules:
+  # Website/Service Connectivity
+  - alert: WebsiteDown
+    expr: probe_success{job="blackbox"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Website {{ $labels.instance }} is down"
+      description: "Website {{ $labels.instance }} has been down for more than 1 minute."
+
+  - alert: SlowWebsiteResponse
+    expr: probe_duration_seconds{job="blackbox"} > 5
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Slow response time for {{ $labels.instance }}"
+      description: "Website {{ $labels.instance }} is responding slowly. Response time: {{ $value }}s"
+
+  # Network Interface
+  - alert: NetworkInterfaceDown
+    expr: node_network_up{device!~"lo|docker.*|veth.*"} == 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Network interface {{ $labels.device }} is down on {{ $labels.instance }}"
+      description: "Network interface {{ $labels.device }} on {{ $labels.instance }} has been down for more than 1 minute."
+
+- name: system_health
+  rules:
+  # Load Average
+  - alert: HighLoadAverage
+    expr: node_load1 > 0.8 * count by(instance) (count by(cpu) (node_cpu_seconds_total{mode="idle"}))
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High load average on {{ $labels.instance }}"
+      description: "Load average is high on {{ $labels.instance }}. Current value: {{ $value }}"
+
+  # File Descriptors
+  - alert: HighFileDescriptorUsage
+    expr: node_filefd_allocated / node_filefd_maximum * 100 > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High file descriptor usage on {{ $labels.instance }}"
+      description: "File descriptor usage is above 80% on {{ $labels.instance }}. Current value: {{ $value }}%"
+
+  # System Uptime (detect recent reboots)
+  - alert: SystemReboot
+    expr: node_time_seconds - node_boot_time_seconds < 600
+    for: 1m
+    labels:
+      severity: info
+    annotations:
+      summary: "System {{ $labels.instance }} has been rebooted"
+      description: "System {{ $labels.instance }} has been rebooted less than 10 minutes ago."
+
+  # Clock Skew
+  - alert: ClockSkew
+    expr: abs(node_time_seconds - timestamp(node_time_seconds)) > 60
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Clock skew detected on {{ $labels.instance }}"
+      description: "Clock on {{ $labels.instance }} is out of sync by more than 1 minute."
+
+- name: service_specific
+  rules:
+  # Grafana Service
+  - alert: GrafanaDown
+    expr: up{job="grafana"} == 0
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Grafana is down"
+      description: "Grafana service has been down for more than 2 minutes."
+
+  # Alertmanager Service
+  - alert: AlertmanagerDown
+    expr: up{job="alertmanager"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Alertmanager is down"
+      description: "Alertmanager service has been down for more than 1 minute."
+
+  # Too many alerts firing
+  - alert: TooManyAlerts
+    expr: count by(instance) (ALERTS{alertstate="firing"}) > 5
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Too many alerts firing on {{ $labels.instance }}"
+      description: "More than 5 alerts are currently firing on {{ $labels.instance }}. This might indicate a serious issue."
+
+- name: prometheus_internals
+  rules:
+  # Prometheus Configuration
+  - alert: PrometheusConfigReloadFailed
+    expr: prometheus_config_last_reload_successful == 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Prometheus configuration reload failed"
+      description: "Prometheus configuration reload has failed."
+
+  # Prometheus TSDB
+  - alert: PrometheusTsdbCompactionsFailed
+    expr: increase(prometheus_tsdb_compactions_failed_total[1h]) > 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Prometheus TSDB compactions failed"
+      description: "Prometheus has detected {{ $value }} TSDB compaction failures in the last hour."
+
+  # Prometheus Target Scrapes
+  - alert: PrometheusTargetScrapeTooSlow
+    expr: prometheus_target_interval_length_seconds{quantile="0.9"} > 60
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Prometheus target scrape duration is too slow"
+      description: "Prometheus target scrape duration is above 60s. Value: {{ $value }}s"
